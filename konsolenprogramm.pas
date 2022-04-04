@@ -4,10 +4,12 @@ uses
     crt;
 
 {
-0 - 0 | 0
-1 - 1 | 1
-0 - 1 | 2
-1 - 1 | 3
+grundlegende Logik:
+alt - neu | Fall
+ 0  -  0  |  0
+ 1  -  1  |  1
+ 0  -  1  |  2
+ 1  -  1  |  3
 }
 
 const
@@ -29,13 +31,13 @@ begin
   for i:=z-1 to z+1 do // oben links
       begin
         for k:=s-1 to s+1 do // unten rechts
-              if Feld[i,k] in [1,3] then
+              if (Feld[i,k] in [1,3]) and (i>=0) and (k>=0) then
                  zaehler:=zaehler+1;
       end;
   result:=zaehler-Feld[z,s];
 end;
 
-procedure init;
+procedure init; // random Feld
 var
   a,b:integer;
 begin
@@ -49,7 +51,7 @@ begin
       end;
 end;
 
-procedure ausgabe;
+procedure ausgabe; // binaere Ausgabe
 var
   a,b:integer;
 begin
@@ -63,7 +65,7 @@ begin
       end;
 end;
 
-procedure ausgabe2;
+procedure ausgabe2; // Ausgabe mit #
 var
   a,b:integer;
 begin
@@ -93,12 +95,12 @@ begin
               if Feld[x,y]=1 then
                  begin
                    if (nachbarn(x,y)<2) or (nachbarn(x,y)>3) then
-                      Feld[x,y]:=3;
+                      Feld[x,y]:=3; // Fall 3 s. Logik
                  end;
               if Feld[x,y]=0 then
                  begin
                    if (nachbarn(x,y)=3) then
-                      Feld[x,y]:=2;
+                      Feld[x,y]:=2; // Fall 2 s. Logik -> Rest bleibt
                  end;
             end;
       end;
@@ -107,7 +109,7 @@ begin
   for x:=1 to zeile do
       begin
         for y:=1 to spalte do
-            begin
+            begin                    // 2 und 3 binaer umwandeln s. Logik
               if Feld[x,y]=2 then
                  Feld[x,y]:=1;
               if Feld[x,y]=3 then

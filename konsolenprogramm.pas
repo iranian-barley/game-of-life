@@ -13,11 +13,13 @@ alt - neu | Fall
 }
 
 const
-  zeile=20;
-  spalte=50;
+  minzeile=0;
+  minspalte=0;
+  maxzeile=10;
+  maxspalte=40;
 
 type
-    TSpielfeld = array[1..zeile,1..spalte] of integer;
+    TSpielfeld = array[minzeile..maxzeile,minspalte..maxspalte] of integer;
 
 var
   Feld:TSpielfeld;
@@ -31,7 +33,22 @@ begin
   for i:=z-1 to z+1 do // oben links
       begin
         for k:=s-1 to s+1 do // unten rechts
-              if (Feld[i,k] in [1,3]) and (i>=0) and (k>=0) then
+              if (i>=0) and (k>=0) and (Feld[i,k] in [1,3]) then // erst >=0 Abfrage sonst Fehler
+                 zaehler:=zaehler+1;
+      end;
+  result:=zaehler-Feld[z,s];
+end;
+
+function torusnachbarn(z,s:integer):integer;
+var
+  zaehler, i, k: integer;
+begin
+  zaehler:=0; // anderes Vorgehen als bei nachbarn():
+  for i:=-1 to 1 do // Zaehlvariable mit Indices verrechnen
+      begin
+        for k:=-1 to 1 do
+              if (Feld[((z+i+maxzeile) mod maxzeile),((s+k+maxspalte) mod maxspalte)] in [1,3]) then
+                 //      -1 in [minzeile..maxzeile] bzw. spalte zurueckgeworfen
                  zaehler:=zaehler+1;
       end;
   result:=zaehler-Feld[z,s];
@@ -42,39 +59,25 @@ var
   a,b:integer;
 begin
   randomize;
-  for a:=1 to zeile do
+  for a:=minzeile to maxzeile do
       begin
-        for b:=1 to spalte do
+        for b:=minspalte to maxspalte do
             begin
               Feld[a,b]:=random(2);
             end;
       end;
 end;
 
-procedure ausgabe; // binaere Ausgabe
+procedure ausgabe; // Ausgabe mit o
 var
   a,b:integer;
 begin
-  for a:=1 to zeile do
+  for a:=minzeile to maxzeile-1 do // -1 sonst 1 zeile doppelt
       begin
-        for b:=1 to spalte do
-            begin
-              write(Feld[a,b]);
-            end;
-        writeLn();
-      end;
-end;
-
-procedure ausgabe2; // Ausgabe mit #
-var
-  a,b:integer;
-begin
-  for a:=1 to zeile do
-      begin
-        for b:=1 to spalte do
+        for b:=minspalte to maxspalte-1 do
             begin
               if Feld[a,b]=1 then
-                 write('#')
+                 write('o')
               else
                 write(' ');
             end;
@@ -84,31 +87,32 @@ end;
 
 begin
   init;
-  ausgabe2;
+  ausgabe;
 
   repeat
     ClrScr;
-    for x:=1 to zeile do
+
+    for x:=minzeile to maxzeile do
       begin
-        for y:=1 to spalte do
+        for y:=minspalte to maxspalte do
             begin
               if Feld[x,y]=1 then
-                 begin
-                   if (nachbarn(x,y)<2) or (nachbarn(x,y)>3) then
+                 begin // aktuell mit Torusfeld
+                   if (torusnachbarn(x,y)<2) or (torusnachbarn(x,y)>3) then
                       Feld[x,y]:=3; // Fall 3 s. Logik
                  end;
               if Feld[x,y]=0 then
                  begin
-                   if (nachbarn(x,y)=3) then
+                   if (torusnachbarn(x,y)=3) then
                       Feld[x,y]:=2; // Fall 2 s. Logik -> Rest bleibt
                  end;
             end;
       end;
 
 
-  for x:=1 to zeile do
+  for x:=minzeile to maxzeile do
       begin
-        for y:=1 to spalte do
+        for y:=minspalte to maxspalte do
             begin                    // 2 und 3 binaer umwandeln s. Logik
               if Feld[x,y]=2 then
                  Feld[x,y]:=1;
@@ -118,6 +122,6 @@ begin
       end;
 
   writeLn();
-  ausgabe2;
+  ausgabe;
   until readkey=#27;
 end.
